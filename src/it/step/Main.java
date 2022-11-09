@@ -1,236 +1,151 @@
 package it.step;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
 public class Main {
-    static EmployeeManager  manager;
-    static ManagerKeyboardReader reader;
+
+    static EmpInterface manager;
+    static EmployeeKeyboardReader reader;
 
     public static void main(String[] args) {
 
-        reader = new ManagerKeyboardReader();
-        int id= 0;
-        boolean endOfCycle;
-        String showEmployee;
-        String name="";
-        String surname="";
-        String gender="";
-        String arrayListOption;
+        manager = new ArrEmployeeManager();
+        reader = new EmployeeKeyboardReader();
+        String option = "";
+        int id = 0;
+        String name = "";
+        String surname = "";
+        String gender = "";
+        String birthdate = "";
+        String temp = "";
 
+        temp = reader.readString("Enter which way you want (arr,listarr,database) !");
 
+        if (temp.equalsIgnoreCase("arr")) {
+            manager = new ArrEmployeeManager();
+        }
+        else if(temp.equalsIgnoreCase("listarr")){
+            manager = new ArrayListEmployeeManager();
+        }else if(temp.equalsIgnoreCase("database")){
+            manager = new DbEmployeeManager();
+            id = new DbEmployeeManager().getCount();
+        }else{
+            System.out.println("Enter an existing way !");
+        }
 
-        do{
-            arrayListOption = reader.readString("Alege cu ce doresti sa lucrezi?(ArrayList OR Array)");
-           if(arrayListOption.equalsIgnoreCase("ArrayList")) {
-               manager = new ArrayListEmployeeManager();
-           }else if(arrayListOption.equalsIgnoreCase("Array")) {
-               manager = new ArrayEmployeeManager();
-           }
-        }while((!arrayListOption.equalsIgnoreCase("ArrayList")) && (!arrayListOption.equalsIgnoreCase("Array")));
+    while(true){
 
+            menu();
+            option = reader.readString("");
 
-        while (true) {
-            try {
-                System.out.println("********** EMPLOYEE  MANAGEMENT SYSTEM **********");
-                System.out.println("\t You have the right to hire a maximum of 20 employees.");
-                System.out.println("1). Create Employee\n" +
-                        "2). View Employee \n" +
-                        "3). Update Employee \n" +
-                        "4). Delete  Employees \n" +
-                        "5). EXIT\n");
-                String optionStr = reader.readString("Enter your choice:");
-                int option = Integer.parseInt(optionStr);
+            if (checkValidOption(option)) {
                 switch (option) {
-                    case 1:
+                    case "1":
 
-                        if(id >19) {
-                            System.out.println("Employees are no longer needed.");
-                            System.exit(0);
-                        }else{
-                            name = reader.readString(" \nEnter name of employee ID: " + (id+1));
-                            surname = reader.readString("Enter surname of employee ID: " + (id+1));
-                            gender = reader.readString("Enter gender of employee ID: " + (id+1));
-                            manager.create(id, name, surname, gender);
-                            id++;
-                        }
+                        System.out.println("Creating Employee No." + (id + 1));
+
+                        name = reader.readString("Enter name: ");
+                        surname = reader.readString("Enter surname: ");
+                        do {
+                            gender = reader.readString("Enter gender(M or F): ");
+                        } while (!(gender.equalsIgnoreCase("M") || gender.equalsIgnoreCase("F")));
+                        birthdate = reader.readString("Enter birthdate :");
+                        manager.create(id, name, surname, Gender.getGender(gender), LocalDate.parse(birthdate, DateTimeFormatter.ofPattern("dd/MM/y")));
+                        id++;
+                        System.out.println("Employee Created succesful !");
+
                         break;
-                    case 2:
-                        endOfCycle=true;
-                        while(endOfCycle){
-                            String optionCase = reader.readString("\nEnter your choice: \n"+
-                                    "1). Viewing all employees \n" +
-                                    "2). Viewing one employee \n" +
-                                    "3). Exit");
-                                switch (optionCase) {
-                                    case "1":
-                                        if(id != 0) {
-                                            showEmployee = "all";
-                                            manager.view(id, showEmployee);
-                                        }else{
-                                            System.out.println("The number of employee in the system is : " + id);
-                                        }
-                                        break;
-                                    case "2":
-                                        if(id != 0) {
-                                            String tempID1;
-                                            int tempID2 =0;
-                                            showEmployee = "one";
-                                            do {
-                                                try {
-                                                    tempID1 = reader.readString("\n Enter the employee id, the number must be greater than 0 and less than or equal to "+ id);
-                                                    tempID2 = Integer.parseInt(tempID1);
-                                                }catch (NumberFormatException e) {
-                                                    System.out.println("Input String cannot be parsed to Integer.");
-                                                }
-                                            }while (tempID2 > id || tempID2 <= 0 );
-                                            manager.view(tempID2, showEmployee);
-                                        }else{
-                                            System.out.println("The number of employee in the system is : " + id);
-                                        }
-                                        break;
-                                    case "3":
-                                        endOfCycle=false;
-                                        break;
-                                    default:
-                                        System.out.println("Please enter one of the options (1, 2, 3)");
-                                        break;
-                                }
-                        }
-                        break;
-                    case 3:
+                    case "2":
+                        try {
+                            temp = reader.readString("Enter employee (0 - one emp , 1 - all emp): ");
 
-                        endOfCycle=true;
-                        while(endOfCycle){
-                            if(id != 0) {
-                                String tempID1;
-                                int tempID2 =0;
-                                showEmployee = "one";
-                                do {
-                                    try {
-                                        tempID1 = reader.readString("\n Enter the employee id you want to update: \n The number must be greater than 0 and less than or equal to "+ id);
-                                        tempID2 = Integer.parseInt(tempID1);
-                                    }catch (NumberFormatException e) {
-                                        System.out.println("Input String cannot be parsed to Integer.");
-                                    }
-                                }while (tempID2 > id || tempID2 <= 0 );
-                                manager.view(tempID2, showEmployee);
-                                //endOfCycle = false;
+                            if(Integer.parseInt(temp) == 0) {
+                                temp = reader.readString("Enter emp id (0-exit)");
 
-                            }else{
-                                System.out.println("The number of employee in the system is : " + id);
+                                if(Integer.parseInt(temp) != 0)
+                                    manager.view(Integer.parseInt(temp),0);
+                            }else if(Integer.parseInt(temp) == 1) {
+                                manager.view(id,1);
+                            }else {
+                                System.out.println("Enter an existing id !");
                             }
-                            endOfCycle = false;
+                        }catch (NumberFormatException e) {
+                            System.out.println("Not a option !");
                         }
 
-                        endOfCycle = true;
-                        while(endOfCycle) {
+
+                        break;
+                    case "3":
+                        temp = reader.readString("Enter which emp u want to delete ?");
+                        if (checkValidOption(temp)) {
+
+                            manager.delete(Integer.parseInt(temp) - 1);
+                            System.out.println("Employee Deleted succesful !");
+                            id--;
+                        } else {
+                            System.out.println("Enter a validated id !");
+                        }
+
+                        break;
+                    case "4":
+                        manager.view(1,1);
+                        temp = reader.readString("Enter which emp u want to update ?");
+                        if (checkValidOption(temp)) {
                             try {
-                                String attrUpdate =  reader.readString("Choose which of the information you want to update: \n" +
-                                        "1). name \n"+
-                                        "2). surname \n"+
-                                        "3). gender\n" +
-                                        "4). EXIT");
+                                manager.update(Integer.parseInt(temp) - 1, name, surname, Gender.valueOf(gender),LocalDate.parse(birthdate,DateTimeFormatter.ofPattern("dd/MM/y")));
 
-                                int attrOption = Integer.parseInt(attrUpdate);
-                                switch (attrOption) {
-                                    case 1:
-                                         name = reader.readString("Enter new Name?");
-                                        break;
-                                    case 2:
-                                         surname = reader.readString("Enter new Surname?");
-                                        break;
-                                    case 3:
-                                         gender = reader.readString("Enter new Gender?");
-                                        break;
-                                    case 4:
-                                        manager.update(id, name, surname, gender);
-                                        endOfCycle = false;
-                                        break;
-                                    default:
-                                        System.out.println("Please enter one of the options (1, 2, 3)");
-                                        break;
-                                }
-                            }catch (NumberFormatException e) {
-                                System.out.println("Input String cannot be parsed to Integer.");
-                            }
-                        }
+                                System.out.println("Editing Emp no." + (Integer.parseInt(temp)));
 
-                        break;
-                    case 4:
-                        String tempID1;
-                        int tempID2 =0;
-                        endOfCycle=true;
-                        while(endOfCycle){
-                            if(id != 0) {
-
-                                showEmployee = "one";
+                                name = reader.readString("Enter new name: ");
+                                surname = reader.readString("Enter new surname: ");
                                 do {
-                                    try {
-                                        tempID1 = reader.readString("\n Enter the employee id you want to delete: \n The number must be greater than 0 and less than or equal to "+ id);
-                                        tempID2 = Integer.parseInt(tempID1);
-                                    }catch (NumberFormatException e) {
-                                        System.out.println("Input String cannot be parsed to Integer.");
-                                    }
-                                }while (tempID2 > id || tempID2 <= 0 );
-                                manager.view(tempID2, showEmployee);
-                            }else{
-                                System.out.println("The number of employee in the system is : " + id);
+                                    gender = reader.readString("Enter new gender(M or F): ");
+                                } while (!(gender.equalsIgnoreCase("M") || gender.equalsIgnoreCase("F")));
+
+                                birthdate = reader.readString("Enter birthdate :");
+                                manager.update(Integer.parseInt(temp) - 1, name, surname, Gender.valueOf(gender),LocalDate.parse(birthdate,DateTimeFormatter.ofPattern("dd/MM/y")));
+
+                                System.out.println("Employee updated succesful !");
+
+                            } catch (NullPointerException e) {
+                                System.out.println("Enter an existing id !");
                             }
-                            endOfCycle = false;
+                        } else {
+                            System.out.println("Enter a validated id !");
                         }
-                        
-                        manager.delete(tempID2);
-                        id--;
+
                         break;
-                    case 5:
-                        System.out.println("Thank you for choosing our employee data entry system.");
+                    case "5":
+
                         System.exit(0);
+
                         break;
                     default:
-                        System.out.println("Please enter one of the options (1, 2, 3, 4, 5)");
+                        System.out.println("Enter an existing option !");
                 }
-            } catch (NumberFormatException e) {
-                System.out.println("Input String cannot be parsed to Integer.");
+            } else {
+                System.out.println("Enter a valid option !");
             }
+
+        }
+
+    }
+
+    public static boolean checkValidOption(String str) {
+        try {
+            Integer.parseInt(str);
+            return true;
+        } catch(NumberFormatException e){
+            return false;
         }
     }
+
+    public static void menu() {
+
+        System.out.println("\nEmployee Manager");
+        System.out.println("1. Add Employee \n2. View Employee\n3. Delete Employee\n4. Edit Employee\n5. Exit");
+
+    }
+
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

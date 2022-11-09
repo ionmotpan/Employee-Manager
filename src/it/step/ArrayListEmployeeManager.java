@@ -1,38 +1,46 @@
 package it.step;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 
-public class ArrayListEmployeeManager implements EmployeeManager{
+public class ArrayListEmployeeManager implements EmpInterface{
 
-    ArrayList<Employee> employees = new ArrayList<>();
-
-    @Override
-    public  void create(int id, String name, String surname, String gender) {
-        employees.add(new Employee(id+1,name,surname,gender));
-    }
+    ArrayList<Employee> emps = new ArrayList<Employee>();
 
     @Override
-    public void view(int id, String showEmployee) {
-        if(showEmployee == "all") {
-            for(int i=0; i<id; i++) {
-                System.out.println("ID: "+employees.get(i).getId()+", NAME: "+employees.get(i).getName()+", SURNAME: "+employees.get(i).getSurname()+", GENDER: "+employees.get(i).getGender());
-
+    public void view(int id,int type) {
+        try {
+            if(emps.size() == 0) {
+                System.out.println("No Employees !");
             }
-        }else{
-            System.out.println("ID: "+employees.get(id-1).getId()+", NAME: "+employees.get(id-1).getName()+", SURNAME: "+employees.get(id-1).getSurname()+", GENDER: "+employees.get(id-1).getGender());
-        }
+            if(type == 1) {
+                for(int i = 0;i< emps.size();i++)  {
+                    System.out.println("Employee no."+emps.get(i).getId() +", name : " + emps.get(i).getName() + ", surname : " + emps.get(i).getSurname() + ", gender : " + emps.get(i).getGender() + ", birthdate : " + emps.get(i).getBirthdate());
+                }
+            }else if(type == 0) {
+                System.out.println("Employee no."+emps.get(id-1).getId() +", name : " + emps.get(id-1).getName() + ", surname : " + emps.get(id-1).getSurname() + ", gender : " + emps.get(id-1).getGender() + ", birthdate : " + emps.get(id-1).getBirthdate());
+            }
 
+        }catch(NullPointerException e) {
+            System.out.println("Enter an existing id !");
+        }
     }
 
     @Override
-    public void update(int id, String name, String surname, String gender) {
-        employees.get(id-1).setName(name);
-        employees.get(id-1).setSurname(surname);
-        employees.get(id-1).setGender(gender);
+    public void create(int id, String name, String surname, Gender gender, LocalDate birthday) {
+        emps.add(new Employee(id+1,name,surname,gender,birthday));
+    }
+
+    @Override
+    public void update(int id, String name, String surname, Gender gender, LocalDate birthday) {
+        emps.get(id).setName(name);
+        emps.get(id).setSurname(surname);
+        emps.get(id).setGender(gender);
+        emps.get(id).setBirthdate(birthday);
     }
 
     @Override
     public void delete(int id) {
-        employees.remove(id-1);
+        emps.remove(id);
     }
 }
